@@ -8,11 +8,11 @@ locals {
 }
 
 resource "aws_vpc" "vpc" {
-  cidr_block       = "${var.vpc_cidr_map[terraform.workspace]}"
+  cidr_block       = "${var.vpc_cidr_block}"
   instance_tenancy = "default"
   tags = {
-    Name        = "${Environment} VPC "
-    Environment = "${Environment}"
+    Name        = "${local.Environment} VPC "
+    Environment = "${local.Environment}"
     Creator     = "Terraform"
   }
 }
@@ -21,18 +21,34 @@ resource "aws_internet_gateway" "igw" {
   vpc_id = "${aws_vpc.vpc.id}"
   tags = {
     Name        = "Test Internet Gateway"
-    Environment = "${Environment}"
+    Environment = "${local.Environment}"
     Creator     = "Terraform"
   }
 }
 
 resource "aws_nat_gateway" "ngw" {
-  allocation_id = "${aws_eip.nat.id}"
-  subnet_id     = "${aws_subnet.public_subnet.id}"
+  count = length(var.private_subnets)
+
+  allocation_id = element(aws_eip.nat.*.id, count.index)
+  subnet_id = element(aws_subnet.public.*.id, count.index)
 
   tags = {
-    Name        = "Test NAT Gateway"
-    Environment = "${Environment}"
+    Name        = "${local.Environment} Nat Gateway ${count.index}"
+    Environment = "${local.Environment}"
+    Creator     = "Terraform"
+  }
+
+  depends_on = [aws_internet_gateway.igw]
+}
+
+resource "aws_eip" "nat" {
+  count = length(var.public_subnets)
+
+  vpc = true
+
+  tags = {
+    Name        = "${local.Environment} Nat Gateway ${count.index} Elastic IP"
+    Environment = "${local.Environment}"
     Creator     = "Terraform"
   }
 }
