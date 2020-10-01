@@ -16,7 +16,7 @@ resource "aws_subnet" "public" {
   count = length(var.public_subnets) > 0 ? length(var.public_subnets) : 0
 
   vpc_id                          = "${aws_vpc.vpc.id}"
-  cidr_block                      = element(concat(var.public_subnets, [""]), count.index)
+  cidr_block                      = "${element(concat(var.public_subnets, [""]), count.index)}"
   availability_zone               = element(var.azs, count.index)
   
   tags = {
@@ -33,7 +33,7 @@ resource "aws_route_table" "igw_rt" {
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = element(aws_internet_gateway.igw.*.id, count.index)
+    gateway_id = "${aws_internet_gateway.igw.id}"
   }
 
   tags = {
@@ -57,4 +57,18 @@ resource "aws_route_table" "nat_rt" {
     Environment = "${local.Environment}"
     Creator     = "Terraform"
   }
+}
+
+resource "aws_route_table_association" "public" {
+  count = length(var.public_subnets) > 0 ? length(var.public_subnets) : 0
+
+  subnet_id      = "${element(aws_subnet.public.*.id, count.index)}"
+  route_table_id = "${aws_route_table.igw_rt[0].id}"
+}
+
+resource "aws_route_table_association" "private" {
+  count = length(var.private_subnets) > 0 ? length(var.private_subnets) : 0
+
+  subnet_id      = "${element(aws_subnet.private.*.id, count.index)}"
+  route_table_id = "${element(aws_route_table.nat_rt.*.id, count.index)}"
 }
