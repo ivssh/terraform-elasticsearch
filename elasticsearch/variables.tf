@@ -10,6 +10,11 @@ variable "key_pair" {
   type = string
 }
 
+variable "elastic_binary" {
+  type = string
+  default=""
+}
+
 variable "num_of_instances" {
   type = number
 }
