@@ -27,3 +27,12 @@ resource "aws_instance" "elasticsearch_instance" {
     Creator     = "Terraform"
   }
 }
+
+resource "aws_eip" "elasticsearch_eip" {
+  count = "${var.num_of_instances}"
+  instance = element(aws_instance.elasticsearch_instance.*.id, count.index)
+
+  tags = {
+    "Name" = "Elasticsearch Elastic IP"
+  }
+}
