@@ -2,6 +2,16 @@
 
 Spin a single instance or cluster of elasticseach nodes on AWS EC2. Also provisions supporting infrasturcture like VPC, Gateways, etc.
 
+The repository has been split into terraform modules-
+- AWS VPC module
+- Elasticsearch instance module
+
+AWS VPC module instatiates all resources which are related to a VPC like route tables, gateways, subnets, etc.
+
+Elasticsearch module instatiates resources like ec2 instance, security group, Elastic IP and null resources to run the provisioners.
+
+NOTE: Some resources may not be part of the free tier like NAT gateway, Elastic IP, etc. but they have been included in the repository.
+
 ### What's possible
 
   - Spin up **secure** elasticsearch cluster
