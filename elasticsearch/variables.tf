@@ -18,3 +18,8 @@ variable "elastic_binary" {
 variable "num_of_instances" {
   type = number
 }
+
+variable "elastic_password" {
+  type = string
+  default = "elastic123"
+}
