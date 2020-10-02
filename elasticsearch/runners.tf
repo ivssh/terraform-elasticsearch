@@ -54,3 +54,29 @@ resource "null_resource" "elasticsearch-post-runner" {
     ]
   }
 }
+
+resource "null_resource" "security-setup-runner" {
+  count = "${var.num_of_instances}"
+
+  depends_on = [aws_eip.elasticsearch_eip]
+
+  connection {
+    type        = "ssh"
+    user        = "ubuntu"
+    private_key = "${file("~/.ssh/yulu_assignment.pem")}"
+    host        = "${element(aws_eip.elasticsearch_eip.*.public_ip, count.index)}"
+  }
+
+  # Install Elasticsearch.
+  provisioner "remote-exec" {
+    inline = [
+      "sudo sed -i '22,23 s/^/#/' /etc/elasticsearch/jvm.options",
+      "echo '-Xms512m' | sudo tee -a /etc/elasticsearch/jvm.options",
+      "echo '-Xmx512m' | sudo tee -a /etc/elasticsearch/jvm.options",
+      "cd /usr/share/elasticsearch",
+      "echo ${var.elastic_password} | sudo ./bin/elasticsearch-keystore add -xf bootstrap.password",
+      "sudo service elasticsearch restart",
+      "sudo systemctl enable elasticsearch"
+    ]
+  }
+}
