@@ -50,7 +50,8 @@ resource "null_resource" "elasticsearch-post-runner" {
       "echo 'network.host : 0.0.0.0' | sudo tee -a /etc/elasticsearch/elasticsearch.yml",
       "echo  'discovery.seed_hosts:  ${jsonencode(aws_instance.elasticsearch_instance.*.private_ip)}' | sudo tee -a /etc/elasticsearch/elasticsearch.yml",
       "echo 'cluster.name: elasticsearch' | sudo tee -a /etc/elasticsearch/elasticsearch.yml",
-      "echo 'xpack.security.enabled: true' | sudo tee -a /etc/elasticsearch/elasticsearch.yml"
+      "echo 'xpack.security.enabled: true' | sudo tee -a /etc/elasticsearch/elasticsearch.yml",
+      "echo 'cluster.initial_master_nodes: ${element(aws_instance.elasticsearch_instance.*.private_ip, 0)}' | sudo tee -a /etc/elasticsearch/elasticsearch.yml"
     ]
   }
 }
