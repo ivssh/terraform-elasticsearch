@@ -1,5 +1,5 @@
 variable "vpc_cidr_block" {
-  type = "string"
+  type = string
   default = "10.16.0.0/16"
 }
 
